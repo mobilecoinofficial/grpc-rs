@@ -123,7 +123,10 @@ fn build_grpc(cc: &mut Build, library: &str) {
 
         // We don't need to generate install targets.
         config.define("gRPC_INSTALL", "false");
-        config.define("CARES_INSTALL", "false");
+        if env::var("TARGET").unwrap_or("".to_owned()).ends_with("-apple-ios") {
+            config.define("CARES_INSTALL", "false");
+        }
+        config.define("protobuf_BUILD_PROTOC_BINARIES", "false");
         // We don't need to build csharp target.
         config.define("gRPC_BUILD_CSHARP_EXT", "false");
         // We don't need to build codegen target.
