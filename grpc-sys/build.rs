@@ -112,6 +112,18 @@ fn build_grpc(cc: &mut Build, library: &str) {
             _ => {}
         };
 
+        // Workaround for Cmake not setting `-m<platform>-version-min` flags properly for asm files
+        // See https://gitlab.kitware.com/cmake/cmake/issues/19794
+        match env::var("TARGET").unwrap_or("".to_owned()).as_str() {
+            "aarch64-apple-ios" | "armv7-apple-ios" | "armv7s-apple-ios" => {
+                config.asmflag("-miphoneos-version-min=7.0");
+            }
+            "i386-apple-ios" | "x86_64-apple-ios" => {
+                config.asmflag("-mios-simulator-version-min=7.0");
+            }
+            _ => {}
+        };
+
         // Allow overriding of the target passed to cmake
         // (needed for Android crosscompile)
         match env::var("CMAKE_TARGET_OVERRIDE") {
