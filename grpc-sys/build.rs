@@ -82,6 +82,14 @@ fn build_grpc(cc: &mut Build, library: &str) {
             config.define("CMAKE_CXX_COMPILER", "g++");
         }
 
+        if env::var("HOST").unwrap_or("".to_owned()).contains("darwin") {
+            // Added for deterministic build support on Apple platforms
+            // Suppresses timestamps in .a files
+            // See: https://gitlab.kitware.com/cmake/cmake/issues/19852
+            config.define("CMAKE_C_CREATE_STATIC_LIBRARY", "xcrun libtool -static -D -o <TARGET> <LINK_FLAGS> <OBJECTS>");
+            config.define("CMAKE_CXX_CREATE_STATIC_LIBRARY", "xcrun libtool -static -D -o <TARGET> <LINK_FLAGS> <OBJECTS>");
+        }
+
         // Cross-compile support for iOS
         match env::var("TARGET").unwrap_or("".to_owned()).as_str() {
             "aarch64-apple-ios" => {
